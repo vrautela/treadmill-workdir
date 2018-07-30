@@ -1,3 +1,5 @@
+GETTING STARTED WITH TREADMILL
+
 1. Install VirtualBox from https://www.virtualbox.org/wiki/Downloads and Vagrant from https://www.vagrantup.com/downloads.html
 
 2. Git clone https://github.com/craighurley/vagrant-cloud-init (this will get you set up with cloud-init 0.7.9) onto your machine
