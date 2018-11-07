@@ -1,5 +1,5 @@
 #cloud-config
-# vim: syntax=yaml
+#vim: syntax=yaml
 
 hostname: zk
 
