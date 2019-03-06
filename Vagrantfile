@@ -1,6 +1,14 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
+
+#Workaround to fix DHCP errors
+class VagrantPlugins::ProviderVirtualBox::Action::Network
+  def dhcp_server_matches_config?(dhcp_server, config)
+    true
+  end
+end
+
 require 'yaml'
 
 # get details of boxes to build
@@ -11,7 +19,8 @@ VAGRANTFILE_API_VERSION = 2
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   boxes.each do |boxes|
-    config.vm.define boxes['name'] do |srv|
+	
+    config.vm.define boxes['name'] do |srv|  
       # OS and hostname
       srv.vm.box = boxes['box']
       if boxes['box_version']
@@ -35,8 +44,19 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         srv.vm.network :forwarded_port, guest: 22, host: boxes['ssh_port'], host_ip: '127.0.0.1', id: 'ssh'
       end
 
+	  #config.vbguest.auto_update = false
+  
+	  #config.vbguest.no_remote = true
+	  
       # Shared folders
-      # srv.vm.synced_folder '.', '/vagrant', disabled: true
+	  srv.vm.synced_folder '.', '/vagrant', disabled: true
+	  srv.vm.synced_folder './build', '/opt/treadmill', id: 'tm_venv'
+	  #NEED TO CHANGE THIS BASED ON EACH BOX
+	  
+	  srv.vm.provider 'virtualbox' do |v|
+		v.customize ['setextradata', :id, 'VBoxInternal2/SharedFoldersEnableSymlinksCreate/tm_venv', '1']
+	  end
+	
 
       srv.vm.provider 'virtualbox' do |vb|
         vb.customize ['modifyvm', :id, '--cpus', boxes['cpus']]
@@ -59,12 +79,11 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.network 'private_network', type:'dhcp'
   
   config.vm.provider :virtualbox do |vb|
-	#vb.gui = true
-	vb.linked_clone = true
+	 vb.linked_clone = true
+	 # vb.gui = true
   end
-  
-  # config.vbguest.auto_update = false
-  
-  # config.vbguest.no_remote = true
-  
+
+  # config.ssh.insert_key = false
+  # config.ssh.private_key_path = '~/.ssh/id_rsa'
+
 end

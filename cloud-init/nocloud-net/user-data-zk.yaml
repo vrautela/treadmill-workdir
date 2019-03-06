@@ -17,6 +17,6 @@ yum_repos:
         failovermethod: priority
         gpgcheck: false
     
-packages:
+packages: 
   - [zookeeper, 3.4.12-5] 
   - [skarnet, 2.7.1.1]

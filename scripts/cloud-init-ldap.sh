@@ -25,6 +25,10 @@ mkdir -p $DATA_SOURCE
 cloud-init init
 cloud-init modules
 
+#Download python3(?)
+yum install -y https://centos7.iuscommunity.org/ius-release.rpm
+yum install -y python36u
+
 # create vagrant_provision on successful run
 touch $SUCCESS_INDICATOR
 
