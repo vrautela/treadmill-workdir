@@ -1,0 +1,59 @@
+#cloud-config
+
+hostname: tm-infra
+
+users:
+  - name: vagrant
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    ssh-authorized-keys:
+      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDHq/KIUoKTgF3pvnqO+ClsQMXNql9bKPHAZAHssq8VozmEviND9xutDD8zsqvP3f4P3sQo8DNpqf+estOPuCUl6PrDJZG5R6r29X6RGt2/A0Wl9OgM0dgsxQiQ/nmQ9bM87Ve56UfF90X7k0Chh2z1VIXJ8vZLbwAd8oHNIbqynHLd2PeOozzWeAbBxv3A3IFtX5s+Ay9N1DhIuUNxNTyWOZMqJBhy4qt5fgQ/PxDPeIqGezNBnIZ6EOQZMRNPDkQGkyUbg9UE6AtLwnjJs35fAZxNyvvcJRT0ys5VR3xBcAvrbiZ+l60jSR0NRgbzLk9ngLvBB3fi+UIatKm1ru1M2cRk768Xkdo1AyYdnVuD9Cwb3n9exAqAo3bRTlM2YnNcT7zi9N2ts8XJ05PxnMmFfYy+Brn/i++wFUmxugEPGivBH74+vkwK4g7sAFoFyozr7TfAZtAKYyCRQ8WKGgDz/XDmIwSlAi/35JT1/cDUK0WsLbQQvyoiu6ZYclvyRxxN9NrnXrDVoQ+YNAXQrlauhAlPKEHZzbjx/wqGfKTJA5F0jedduCwMxYWOBuLbMBBLyU8S6gloK/ogU9ekOQGtPh+Tmr7m+2OMf+/OlZ+2l55PTrWTWrHULh9m/u0ZXdL04DEiOeTfh9jFIiAQaDc9pxttk5uDwQ1DdBai0u5vww== v.rautela01@gmail.com
+
+yum_repos:
+    localrepo:
+        baseurl: http://192.168.42.1:8000
+        name: Treadmill RPMs 
+        enabled: true
+        failovermethod: priority
+        gpgcheck: false
+
+packages:
+  - openldap
+  - openldap-clients 
+  - openldap-servers
+  - vim
+  - python36
+  # this will run, only if there is a web server from which cloud init can pull the skarnet rpm
+  - skarnet
+
+write_files:
+- path: /etc/hosts
+  permissions: '0644'
+  content: |
+    #Host file
+    127.0.0.1   localhost localhost.localdomain
+
+    192.168.42.1 dev
+    192.168.42.2 tm-infra
+    192.168.42.3 master
+    192.168.42.4 node
+  # owner: root
+
+runcmd:
+- echo "====================================================================="
+- echo "Hello, world!"
+- echo "Hello, world!"
+- echo "Hello, world!"
+- echo "====================================================================="
+- mkdir /tmp/test
+- sudo chmod -R 777 /tmp/test
+- touch ldappwd.txt
+- echo "supersecret!" > /home/vagrant/ldappwd.txt
+- cp ldappwd.txt test.txt
+- source /opt/treadmill/tm_venv/bin/activate
+# - sudo rpm --install /opt/rpms/skarnet-2.7.1.1-106.el7.x86_64.rpm
+- TREADMILL_LDAP_SUFFIX='dc=ms,dc=com' treadmill admin install --cell - --profile vagrant --distro /opt/treadmill/tm_venv/ --install-dir /tmp/test openldap --env tm-infra --owner vagrant --uri ldap://tm-infra:22389 --first-time -p `/usr/sbin/slappasswd -nT /home/vagrant/ldappwd.txt`
+- SYSTEMD_RUN="/usr/bin/systemd-run"  
+- exec ${SYSTEMD_RUN} --unit tm-ldap --setenv SYS_LOC=${SYS_LOC} --setenv ID_EXEC=${ID_EXEC} /tmp/test/bin/run.sh
+
+# - systemctl enable tm-infra.service
+# - systemctl start --no-block tm-infra.service

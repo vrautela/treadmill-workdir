@@ -1,0 +1,16 @@
+# vim:syntax=cfg
+
+[treadmill.profiles]
+vagrant = treadmill_vagrant.plugins.profile
+
+
+[treadmill.bootstrap]
+aliases.vagrant = treadmill_vagrant.bootstrap.vagrant_aliases
+openldap.vagrant = treadmill_vagrant.bootstrap.openldap.vagrant
+#zookeeper.vagrant = treadmill_vagrant.bootstrap.zookeeper.vagrant
+#node.vagrant = treadmill_vagrant.bootstrap.node.vagrant
+#master.vagrant = treadmill_vagrant.bootstrap.master.vagrant
+
+
+[treadmill.logging]
+vagrant = treadmill_vagrant.logging

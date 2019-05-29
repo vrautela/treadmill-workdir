@@ -1,12 +1,10 @@
 #!/opt/treadmill/tm_venv/bin/python3.6
-# EASY-INSTALL-ENTRY-SCRIPT: 'Treadmill','console_scripts','treadmill'
-__requires__ = 'Treadmill'
+# -*- coding: utf-8 -*-
 import re
 import sys
-from pkg_resources import load_entry_point
+
+from treadmill.console import run
 
 if __name__ == '__main__':
     sys.argv[0] = re.sub(r'(-script\.pyw?|\.exe)?$', '', sys.argv[0])
-    sys.exit(
-        load_entry_point('Treadmill', 'console_scripts', 'treadmill')()
-    )
+    sys.exit(run())

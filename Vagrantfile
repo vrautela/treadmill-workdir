@@ -3,11 +3,11 @@
 
 
 #Workaround to fix DHCP errors
-class VagrantPlugins::ProviderVirtualBox::Action::Network
-  def dhcp_server_matches_config?(dhcp_server, config)
-    true
-  end
-end
+# class VagrantPlugins::ProviderVirtualBox::Action::Network
+#   def dhcp_server_matches_config?(dhcp_server, config)
+#     true
+#   end
+# end
 
 require 'yaml'
 
@@ -19,8 +19,17 @@ VAGRANTFILE_API_VERSION = 2
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   boxes.each do |boxes|
-	
-    config.vm.define boxes['name'] do |srv|  
+    config.vm.define boxes['name'] do |srv|
+      if boxes['name'] == "dev"
+        srv.vm.network "private_network", ip: "192.168.42.1"
+      elsif boxes['name'] == "tm-infra"
+        srv.vm.network "private_network", ip: "192.168.42.2"
+      elsif boxes['name'] == "master"
+        srv.vm.network "private_network", ip: "192.168.42.3"
+      elsif boxes['name'] == "node"
+        srv.vm.network "private_network", ip: "192.168.42.4"
+      end    
+
       # OS and hostname
       srv.vm.box = boxes['box']
       if boxes['box_version']
@@ -44,14 +53,17 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         srv.vm.network :forwarded_port, guest: 22, host: boxes['ssh_port'], host_ip: '127.0.0.1', id: 'ssh'
       end
 
-	  #config.vbguest.auto_update = false
-  
-	  #config.vbguest.no_remote = true
-	  
       # Shared folders
-	  srv.vm.synced_folder '.', '/vagrant', disabled: true
-	  srv.vm.synced_folder './build', '/opt/treadmill', id: 'tm_venv'
-	  #NEED TO CHANGE THIS BASED ON EACH BOX
+
+      srv.vm.synced_folder '.', '/vagrant', disabled: "true"
+      srv.vm.synced_folder './build', '/opt/treadmill', id: 'tm_venv', type: "sshfs"
+      srv.vm.synced_folder './rpms', '/opt/rpms', type: "sshfs"
+
+	  config.vbguest.auto_update = false
+
+	  #config.vbguest.no_remote = true
+	  # config.vbguest.auto_reboot = true
+      
 	  
 	  srv.vm.provider 'virtualbox' do |v|
 		v.customize ['setextradata', :id, 'VBoxInternal2/SharedFoldersEnableSymlinksCreate/tm_venv', '1']
@@ -76,11 +88,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     end
   end
   
-  config.vm.network 'private_network', type:'dhcp'
-  
   config.vm.provider :virtualbox do |vb|
 	 vb.linked_clone = true
-	 # vb.gui = true
+	 #vb.gui = true
   end
 
   # config.ssh.insert_key = false

@@ -13,6 +13,11 @@ USER_DATA=/tmp/vagrant/cloud-init/nocloud-net/user-data
 # check if vagrant_provision has run before
 [[ -f $SUCCESS_INDICATOR ]] && exit 0
 
+#Download python3
+# shold probably change this to ignore if already installed
+yum install -y https://centos7.iuscommunity.org/ius-release.rpm
+yum install -y python36u
+
 # install cloud-init
 yum install -y cloud-init
 
@@ -24,10 +29,6 @@ mkdir -p $DATA_SOURCE
 # force cloud-init to run
 cloud-init init
 cloud-init modules
-
-#Download python3(?)
-yum install -y https://centos7.iuscommunity.org/ius-release.rpm
-yum install -y python36u
 
 # create vagrant_provision on successful run
 touch $SUCCESS_INDICATOR

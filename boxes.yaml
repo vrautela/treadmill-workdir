@@ -1,6 +1,6 @@
 ---
 - name: tm-infra
-  description: LDAP
+  description: infra VM
   box: centos/7
   cpus: 2
   cpu_execution_cap: 75
@@ -8,8 +8,8 @@
   ssh_port: 2205
   provision:
     meta-data: ./cloud-init/nocloud-net/meta-data.yaml
-    user-data: ./cloud-init/nocloud-net/user-data-ldap.yaml
-    cloud-init: ./scripts/cloud-init-ldap.sh
+    user-data: ./cloud-init/nocloud-net/user-data-tm-infra.yaml
+    cloud-init: ./scripts/cloud-init.sh
     
 - name: dev
   description: dev VM
@@ -23,8 +23,8 @@
     user-data: ./cloud-init/nocloud-net/user-data-dev.yaml
     cloud-init: ./scripts/cloud-init.sh    
     
-- name: zk
-  description: zookeeper
+- name: master
+  description: master
   box: centos/7
   cpus: 2
   cpu_execution_cap: 75
@@ -32,5 +32,17 @@
   ssh_port: 2207
   provision:
     meta-data: ./cloud-init/nocloud-net/meta-data.yaml
-    user-data: ./cloud-init/nocloud-net/user-data-zk.yaml
-    cloud-init: ./scripts/cloud-init-zk.sh
+    user-data: ./cloud-init/nocloud-net/user-data-master.yaml
+    cloud-init: ./scripts/cloud-init.sh
+
+- name: node
+  description: node
+  box: centos/7
+  cpus: 2
+  cpu_execution_cap: 75
+  ram: 512
+  ssh_port: 2208
+  provision:
+    meta-data: ./cloud-init/nocloud-net/meta-data.yaml
+    user-data: ./cloud-init/nocloud-net/user-data-node.yaml
+    cloud-init: ./scripts/cloud-init.sh
